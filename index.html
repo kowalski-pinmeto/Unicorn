@@ -1,0 +1,17 @@
+<html>
+  <body>
+    <div id="main"></div>
+
+    <script src="elm.js"></script>
+    <script>
+      var app = Elm.Main.init({
+        node: document.getElementById("main"),
+      });
+      var d = new Date();
+      app.ports.sendData.subscribe(function (data) {
+        console.log("Data from Elm: ", data);
+        app.ports.receiveData.send("" + d);
+      });
+    </script>
+  </body>
+</html>

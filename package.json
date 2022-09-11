@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "elm-live": "^4.0.2"
+  },
+  "scripts": {
+    "compile": "elm make src/Main.elm --output=index.js"
+  }
+}
