@@ -4,26 +4,113 @@
     justify-content: center;
     margin-top: 15px;
   }
-ul {
-    padding: 0;
-    border-radius: 20px;
-    border-style: solid;
-    border-color: palevioletred;
-}
-li {
-    margin: 5px;
-    text-align: center;
-    font-family: 'Brush Script MT', cursive;
-    font-size: 2em;
-}
-ul:first-child {
-    background: url("glitter-stars.gif");
-
+.container-bottom {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
   }
 
-div {
-    font-family: 'Brush Script MT', cursive;
+.devs-list {
+  width: 100%;
+  position: fixed;
+  left: 35%;
 }
+
+.dev-ul {
+    padding: 0;
+    border-radius: 42px;
+    border-style: solid;
+    border-color: palevioletred;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: space-around;
+}
+.dev-li {
+    margin: 5px;
+    text-align: center;
+    font-family: 'Teko', sans-serif;
+    font-size: 2em;
+    list-style: none;
+}
+.unicorn {
+    background: url("glitter-stars.gif");
+    padding: 0;
+    border-radius: 42px;
+    border-style: solid;
+    border-color: palevioletred;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+.sickUnicorn {
+  background-color: black;
+  background: url("working2.png");
+}
+.sickUnicorn:hover {
+  background: url("sick1.png")
+}
+
+div {
+  font-family: 'Teko', sans-serif;
+}
+
+.wow {
+  position: absolute;
+  left: 75%;
+  top: 28%;
+}
+
+.sickos {
+  position:absolute;
+  left:5%;
+}
+
+
+
+.buttons {
+  object-fit: contain;
+  justify-content: center;
+  justify-items: center;
+  background-color:#71dfe3;
+	display:inline-block;
+	cursor:pointer;
+  margin: 5px;
+	color: black;
+	font-family: 'Teko', sans-serif;
+}
+
+.myButton {
+  position: absolute;
+  width: 10%;
+  left: 68%;
+  top: 50%;
+  object-fit: contain;
+  justify-content: center;
+  justify-items: center;
+  width: 15%;
+	background-color:#71dfe3;
+	border-radius:42px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family: 'Teko', sans-serif;
+	font-size:23px;
+	padding:23px 28px;
+	text-decoration:none;
+  
+}
+.myButton:hover {
+	background-color:#3ebae0;
+}
+
+input {
+  width:100%;
+  margin-bottom: 5px;
+}
+
 
 .title {
     font-family: 'Teko', sans-serif;
@@ -44,6 +131,7 @@ h1 {
     text-transform: uppercase;
     animation: glow 0.5s ease-in-out infinite alternate;
     text-align: center;
+    
   }
   a {
     font-family: 'Teko', sans-serif;

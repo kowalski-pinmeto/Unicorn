@@ -5330,10 +5330,11 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Developer = F2(
-	function (name, date) {
-		return {date: date, name: name};
+var $author$project$Main$Developer = F3(
+	function (name, date, status) {
+		return {date: date, name: name, status: status};
 	});
+var $author$project$Main$None = {$: 'None'};
 var $justinmimbs$date$Date$RD = function (a) {
 	return {$: 'RD', a: a};
 };
@@ -5556,10 +5557,12 @@ var $elm$time$Time$Zone = F2(
 		return {$: 'Zone', a: a, b: b};
 	});
 var $elm$time$Time$utc = A2($elm$time$Time$Zone, 0, _List_Nil);
-var $author$project$Main$defaultDate = A2(
-	$justinmimbs$date$Date$fromPosix,
-	$elm$time$Time$utc,
-	$elm$time$Time$millisToPosix(0));
+var $author$project$Main$formatDate = function (date) {
+	return A2(
+		$justinmimbs$date$Date$fromPosix,
+		$elm$time$Time$utc,
+		$elm$time$Time$millisToPosix(date));
+};
 var $rjbma$elm_listview$ListView$State = function (a) {
 	return {$: 'State', a: a};
 };
@@ -5570,6 +5573,7 @@ var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$sendData = _Platform_outgoingPort('sendData', $elm$json$Json$Encode$string);
 var $author$project$Main$init = _Utils_Tuple2(
 	{
+		collapsible: true,
 		dateJs: A2(
 			$justinmimbs$date$Date$fromPosix,
 			$elm$time$Time$utc,
@@ -5577,11 +5581,29 @@ var $author$project$Main$init = _Utils_Tuple2(
 		dateJsString: '',
 		developers: _List_fromArray(
 			[
-				A2($author$project$Main$Developer, 'Bartek', $author$project$Main$defaultDate),
-				A2($author$project$Main$Developer, 'Lybron', $author$project$Main$defaultDate),
-				A2($author$project$Main$Developer, 'River', $author$project$Main$defaultDate),
-				A2($author$project$Main$Developer, 'Mika', $author$project$Main$defaultDate)
+				A3(
+				$author$project$Main$Developer,
+				'Bartek',
+				$author$project$Main$formatDate(1666952162000),
+				$author$project$Main$None),
+				A3(
+				$author$project$Main$Developer,
+				'Lybron',
+				$author$project$Main$formatDate(1667470562000),
+				$author$project$Main$None),
+				A3(
+				$author$project$Main$Developer,
+				'River',
+				$author$project$Main$formatDate(1667384162000),
+				$author$project$Main$None),
+				A3(
+				$author$project$Main$Developer,
+				'Mika',
+				$author$project$Main$formatDate(1667297762000),
+				$author$project$Main$None)
 			]),
+		newDev: '',
+		sickDevelopers: _List_Nil,
 		tableState: $rjbma$elm_listview$ListView$makeState
 	},
 	$author$project$Main$sendData('Hello Js'));
@@ -5593,6 +5615,103 @@ var $author$project$Main$receiveData = _Platform_incomingPort('receiveData', $el
 var $author$project$Main$subscriptions = function (_v0) {
 	return $author$project$Main$receiveData($author$project$Main$ReceivedDataFromJS);
 };
+var $author$project$Main$Sick = {$: 'Sick'};
+var $author$project$Main$Unicorn = {$: 'Unicorn'};
+var $author$project$Main$assignUnicorn = F2(
+	function (model, name) {
+		var noUnicorns = function (x) {
+			return _Utils_eq(x.status, $author$project$Main$Sick) ? x : _Utils_update(
+				x,
+				{status: $author$project$Main$None});
+		};
+		var assign = function (x) {
+			return _Utils_eq(x.name, name) ? _Utils_update(
+				x,
+				{date: model.dateJs, status: $author$project$Main$Unicorn}) : x;
+		};
+		return A2(
+			$elm$core$List$map,
+			assign,
+			A2($elm$core$List$map, noUnicorns, model.developers));
+	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $author$project$Main$backToHealth = F3(
+	function (name, devs, sicks) {
+		var makeBetter = function (x) {
+			return _Utils_eq(x.name, name) ? _Utils_update(
+				x,
+				{
+					date: $author$project$Main$formatDate(1603880162000),
+					status: $author$project$Main$None
+				}) : x;
+		};
+		var isName = function (x) {
+			return _Utils_eq(x.name, name);
+		};
+		var healthyGuy = A2($elm$core$List$filter, isName, sicks);
+		var check = function (x) {
+			return _Utils_eq(x.name, name) ? true : false;
+		};
+		return A2(
+			$elm$core$List$member,
+			true,
+			A2($elm$core$List$map, check, devs)) ? A2($elm$core$List$map, makeBetter, devs) : A2(
+			$elm$core$List$map,
+			makeBetter,
+			A2($elm$core$List$append, healthyGuy, devs));
+	});
+var $author$project$Main$defaultDate = A2(
+	$justinmimbs$date$Date$fromPosix,
+	$elm$time$Time$utc,
+	$elm$time$Time$millisToPosix(0));
 var $elm$parser$Parser$Advanced$Bad = F2(
 	function (a, b) {
 		return {$: 'Bad', a: a, b: b};
@@ -6420,13 +6539,19 @@ var $author$project$Main$format = function (x) {
 			$elm$time$Time$millisToPosix(0)),
 		$justinmimbs$date$Date$fromIsoString(x));
 };
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
+var $author$project$Main$markAsSick = F3(
+	function (sickName, devs, status) {
+		var sickCheck = function (x) {
+			return _Utils_eq(x.name, sickName) ? (status ? _Utils_update(
+				x,
+				{
+					date: $author$project$Main$formatDate(1603880162000),
+					status: $author$project$Main$Sick
+				}) : _Utils_update(
+				x,
+				{status: $author$project$Main$None})) : x;
+		};
+		return status ? A2($elm$core$List$map, sickCheck, devs) : devs;
 	});
 var $elm$core$List$drop = F2(
 	function (n, list) {
@@ -7289,25 +7414,59 @@ var $justinmimbs$date$Date$format = function (pattern) {
 var $justinmimbs$date$Date$toIsoString = $justinmimbs$date$Date$format('yyyy-MM-dd');
 var $author$project$Main$newHead = function (model) {
 	var updateUser = function (user) {
-		return _Utils_eq(user.date, model.dateJs) ? user : _Utils_update(
+		return _Utils_update(
 			user,
-			{date: model.dateJs});
+			{date: model.dateJs, status: $author$project$Main$Unicorn});
+	};
+	var noUnicorns = function (x) {
+		return _Utils_update(
+			x,
+			{status: $author$project$Main$None});
+	};
+	var isSick = function (dev) {
+		return !_Utils_eq(dev.status, $author$project$Main$Sick);
 	};
 	var sortedList = A2(
 		$elm$core$List$sortBy,
 		function (x) {
 			return $justinmimbs$date$Date$toIsoString(x.date);
 		},
-		model.developers);
-	var newList = A2($elm$core$List$drop, 1, sortedList);
+		A2($elm$core$List$filter, isSick, model.developers));
+	var newList = A2(
+		$elm$core$List$drop,
+		1,
+		A2($elm$core$List$map, noUnicorns, sortedList));
 	var headList = A2(
 		$elm$core$List$map,
 		updateUser,
-		A2($elm$core$List$take, 1, sortedList));
-	return A2($elm$core$List$append, newList, headList);
+		A2(
+			$elm$core$List$take,
+			1,
+			A2($elm$core$List$map, noUnicorns, sortedList)));
+	return A2(
+		$elm$core$List$filter,
+		isSick,
+		A2($elm$core$List$append, newList, headList));
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$pushToSick = F4(
+	function (devs, sicks, name, status) {
+		var isSick = function (dev) {
+			return _Utils_eq(dev.name, name);
+		};
+		return A2(
+			$elm$core$List$append,
+			sicks,
+			A2($elm$core$List$filter, isSick, devs));
+	});
+var $author$project$Main$removeHealthy = F2(
+	function (sicks, name) {
+		var isName = function (x) {
+			return !_Utils_eq(x.name, name);
+		};
+		return A2($elm$core$List$filter, isName, sicks);
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -7326,7 +7485,7 @@ var $author$project$Main$update = F2(
 							dateJsString: data
 						}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'ModifyList':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -7334,9 +7493,71 @@ var $author$project$Main$update = F2(
 							developers: $author$project$Main$newHead(model)
 						}),
 					$elm$core$Platform$Cmd$none);
+			case 'Input':
+				var text = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{newDev: text}),
+					$elm$core$Platform$Cmd$none);
+			case 'UpdateDevs':
+				var dev = A3($author$project$Main$Developer, model.newDev, $author$project$Main$defaultDate, $author$project$Main$None);
+				return ($elm$core$String$length(model.newDev) > 1) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							collapsible: true,
+							developers: A2($elm$core$List$cons, dev, model.developers)
+						}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{collapsible: true}),
+					$elm$core$Platform$Cmd$none);
+			case 'OpenButton':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{collapsible: false}),
+					$elm$core$Platform$Cmd$none);
+			case 'Nope':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'SickStatus':
+				var status = msg.a;
+				var name = msg.b;
+				return status ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							developers: A3($author$project$Main$markAsSick, name, model.developers, status),
+							sickDevelopers: A4($author$project$Main$pushToSick, model.developers, model.sickDevelopers, name, status)
+						}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							developers: A3($author$project$Main$backToHealth, name, model.developers, model.sickDevelopers),
+							sickDevelopers: A2($author$project$Main$removeHealthy, model.sickDevelopers, name)
+						}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var name = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							developers: A2($author$project$Main$assignUnicorn, model, name)
+						}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Main$Input = function (a) {
+	return {$: 'Input', a: a};
+};
 var $author$project$Main$ModifyList = {$: 'ModifyList'};
+var $author$project$Main$Nope = {$: 'Nope'};
+var $author$project$Main$OpenButton = {$: 'OpenButton'};
+var $author$project$Main$UpdateDevs = {$: 'UpdateDevs'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -7348,7 +7569,9 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$img = _VirtualDom_node('img');
+var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -7366,14 +7589,140 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $author$project$Main$AssignUnicorn = function (a) {
+	return {$: 'AssignUnicorn', a: a};
+};
+var $author$project$Main$SickStatus = F2(
+	function (a, b) {
+		return {$: 'SickStatus', a: a, b: b};
+	});
 var $elm$html$Html$li = _VirtualDom_node('li');
+var $elm$html$Html$section = _VirtualDom_node('section');
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $author$project$Main$renderProduct = function (product) {
-	var children = _List_fromArray(
+	var unicornRender = _Utils_eq(product.status, $author$project$Main$Unicorn) ? 'unicorn' : 'dev-ul';
+	return (!_Utils_eq(product.status, $author$project$Main$Sick)) ? A2(
+		$elm$html$Html$ul,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class(unicornRender),
+				A2($elm$html$Html$Attributes$style, 'width', '30%')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$li,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('dev-li')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(product.name)
+							])),
+						A2(
+						$elm$html$Html$li,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('dev-li'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '90%')
+							]),
+						_List_fromArray(
+							[
+								_Utils_eq(
+								product.date,
+								$author$project$Main$formatDate(1603880162000)) ? $elm$html$Html$text('Next unicorn') : $elm$html$Html$text(
+								$justinmimbs$date$Date$toIsoString(product.date))
+							]))
+					])),
+				A2(
+				$elm$html$Html$section,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'text-align-last', 'center')
+					]),
+				_List_fromArray(
+					[
+						_Utils_eq(product.status, $author$project$Main$Unicorn) ? A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick(
+								A2($author$project$Main$SickStatus, true, product.name)),
+								$elm$html$Html$Attributes$class('sickUnicorn'),
+								A2($elm$html$Html$Attributes$style, 'width', '100px'),
+								A2($elm$html$Html$Attributes$style, 'height', '100px')
+							]),
+						_List_Nil) : A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('buttons'),
+								$elm$html$Html$Events$onClick(
+								$author$project$Main$AssignUnicorn(product.name))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Assign')
+							]))
+					]))
+			])) : $elm$html$Html$text('');
+};
+var $author$project$Main$renderProducts = function (products) {
+	return A2(
+		$elm$core$List$map,
+		$author$project$Main$renderProduct,
+		$elm$core$List$reverse(products));
+};
+var $elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var $author$project$Main$renderSick = function (dev) {
+	var kid = _Utils_eq(dev.status, $author$project$Main$Sick) ? _List_fromArray(
 		[
 			A2(
 			$elm$html$Html$li,
@@ -7383,36 +7732,46 @@ var $author$project$Main$renderProduct = function (product) {
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text(product.name)
+					$elm$html$Html$text(dev.name)
 				])),
 			A2(
-			$elm$html$Html$li,
+			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					A2($elm$html$Html$Attributes$style, 'list-style', 'none')
+					$elm$html$Html$Events$onClick(
+					A2($author$project$Main$SickStatus, false, dev.name)),
+					A2($elm$html$Html$Attributes$style, 'margin-left', '5px')
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text(
-					$justinmimbs$date$Date$toIsoString(product.date))
+					A2(
+					$elm$html$Html$img,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$src('src/healthy.png'),
+							A2($elm$html$Html$Attributes$style, 'width', '20px')
+						]),
+					_List_Nil)
 				]))
-		]);
+		]) : _List_Nil;
 	return A2(
 		$elm$html$Html$ul,
 		_List_fromArray(
 			[
-				A2($elm$html$Html$Attributes$style, 'width', '200px')
+				A2($elm$html$Html$Attributes$style, 'display', 'flex')
 			]),
-		children);
+		kid);
 };
-var $author$project$Main$renderProducts = function (products) {
-	return A2($elm$core$List$map, $author$project$Main$renderProduct, products);
-};
-var $elm$html$Html$Attributes$src = function (url) {
+var $author$project$Main$renderSicks = function (sicks) {
+	var makeSick = function (x) {
+		return _Utils_update(
+			x,
+			{status: $author$project$Main$Sick});
+	};
 	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
+		$elm$core$List$map,
+		$author$project$Main$renderSick,
+		A2($elm$core$List$map, makeSick, sicks));
 };
 var $author$project$Main$view = function (model) {
 	return A2(
@@ -7465,20 +7824,89 @@ var $author$project$Main$view = function (model) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('container')
+						$elm$html$Html$Attributes$class('container-bottom')
 					]),
 				_List_fromArray(
 					[
+						($elm$core$List$length(model.sickDevelopers) > 0) ? A2(
+						$elm$html$Html$section,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('sickos')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$h3,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Sick unicorns :(')
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('sickos')
+									]),
+								$author$project$Main$renderSicks(model.sickDevelopers))
+							])) : $elm$html$Html$text(''),
 						A2(
 						$elm$html$Html$div,
-						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('devs-list')
+							]),
 						$author$project$Main$renderProducts(
 							A2(
 								$elm$core$List$sortBy,
 								function (x) {
 									return $justinmimbs$date$Date$toIsoString(x.date);
 								},
-								model.developers)))
+								model.developers))),
+						A2(
+						$elm$html$Html$img,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$src('src/collapsible.png'),
+								$elm$html$Html$Attributes$class('wow')
+							]),
+						_List_Nil),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('myButton'),
+								model.collapsible ? $elm$html$Html$Events$onClick($author$project$Main$OpenButton) : $elm$html$Html$Events$onClick($author$project$Main$Nope)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Add Unicorn'),
+								model.collapsible ? A2($elm$html$Html$div, _List_Nil, _List_Nil) : A2(
+								$elm$html$Html$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$input,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$class('container'),
+												$elm$html$Html$Events$onInput($author$project$Main$Input)
+											]),
+										_List_Nil),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Main$UpdateDevs)
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Submit')
+											]))
+									]))
+							]))
 					]))
 			]));
 };
