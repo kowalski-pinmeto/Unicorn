@@ -5180,9 +5180,9 @@ var $author$project$Main$init = _Utils_Tuple2(
 		dateJs: '',
 		developers: _List_fromArray(
 			[
-				A2($author$project$Main$Developer, 'A', 'B1'),
-				A2($author$project$Main$Developer, 'A', 'B1'),
-				A2($author$project$Main$Developer, 'A', 'B1')
+				A2($author$project$Main$Developer, 'A', '2'),
+				A2($author$project$Main$Developer, 'A', '1'),
+				A2($author$project$Main$Developer, 'A', '5')
 			]),
 		tableState: $rjbma$elm_listview$ListView$makeState
 	},
@@ -5289,26 +5289,7 @@ var $author$project$Main$update = F2(
 var $author$project$Main$OnTableMsg = function (a) {
 	return {$: 'OnTableMsg', a: a};
 };
-var $author$project$Main$SendDataToJS = {$: 'SendDataToJS'};
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
 var $rjbma$elm_listview$ListView$ColumnConfig = function (a) {
 	return {$: 'ColumnConfig', a: a};
 };
@@ -5846,6 +5827,23 @@ var $rjbma$elm_listview$ListView$Sorted = F2(
 	function (a, b) {
 		return {$: 'Sorted', a: a, b: b};
 	});
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$html$Html$th = _VirtualDom_node('th');
 var $rjbma$elm_listview$ListView$Viewers$viewColumnHeader = F2(
 	function (onSort, colInfo) {
@@ -5901,6 +5899,7 @@ var $rjbma$elm_listview$ListView$GotoPreviousPage = {$: 'GotoPreviousPage'};
 var $rjbma$elm_listview$ListView$Viewers$OnPageChange = function (a) {
 	return {$: 'OnPageChange', a: a};
 };
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $rjbma$elm_listview$ListView$Viewers$viewPaginator = F2(
 	function (msgMapper, pvi) {
 		var viewInt = F2(
@@ -6121,17 +6120,7 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						A4($rjbma$elm_listview$ListView$Viewers$viewAsHtmlTable, $author$project$Main$OnTableMsg, $author$project$Main$tableConfig, model.tableState, model.developers),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$SendDataToJS)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Send')
-							]))
+						A4($rjbma$elm_listview$ListView$Viewers$viewAsHtmlTable, $author$project$Main$OnTableMsg, $author$project$Main$tableConfig, model.tableState, model.developers)
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -6139,6 +6128,13 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(model.dateJs)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('string')
 					]))
 			]));
 };

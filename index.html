@@ -1,4 +1,11 @@
 <html>
+  <head>
+    <link rel="stylesheet" href="src/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+  </head>
   <body>
     <div id="main"></div>
 
@@ -8,9 +15,10 @@
         node: document.getElementById("main"),
       });
       var d = new Date();
+      var x = d.toISOString();
       app.ports.sendData.subscribe(function (data) {
         console.log("Data from Elm: ", data);
-        app.ports.receiveData.send("" + d);
+        app.ports.receiveData.send("" + x);
       });
     </script>
   </body>
