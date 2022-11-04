@@ -1,0 +1,65 @@
+
+.container {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+ul {
+    padding: 0;
+    border-radius: 20px;
+    border-style: solid;
+    border-color: palevioletred;
+}
+li {
+    margin: 5px;
+    text-align: center;
+    font-family: 'Brush Script MT', cursive;
+    font-size: 2em;
+}
+ul:first-child {
+    background: url("glitter-stars.gif");
+
+  }
+
+div {
+    font-family: 'Brush Script MT', cursive;
+}
+
+.title {
+    font-family: 'Teko', sans-serif;
+    font-size: 4em;
+}
+
+body {
+    background-color: pink;
+}
+h1 {
+    margin: 0;
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 1;
+    font-family: 'Teko', sans-serif;
+    color: turquoise;
+    font-size: 10rem;
+    text-transform: uppercase;
+    animation: glow 0.5s ease-in-out infinite alternate;
+    text-align: center;
+  }
+  a {
+    font-family: 'Teko', sans-serif;
+    color: turquoise;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    justify-self: center;
+    padding-bottom: 1rem;
+  }
+  
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 20px #2d9da9;
+    }
+    to {
+      text-shadow: 0 0 30px #34b3c1, 0 0 10px #4dbbc7;
+    }
+  }
