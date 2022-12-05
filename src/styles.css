@@ -1,19 +1,32 @@
 
 .container {
-    display: flex;
-    justify-content: center;
-    margin-top: 15px;
-  }
-.container-bottom {
-    display: flex;
+  display: grid;
+  grid-area: unicorn;
     justify-content: center;
     margin-top: 15px;
   }
 
+
 .devs-list {
   width: 100%;
-  position: fixed;
-  left: 35%;
+  display: grid;
+  grid-area: list;
+}
+
+.griddy {
+  display: grid;
+  grid-template-columns: 3;
+  grid-template-rows: 4; 
+
+  display: grid;
+  grid-template-columns: 20% 20% 20% 20% 20%;
+  grid-template-rows: auto;
+  grid-template-areas: 
+    "header header header header header"
+    ". . unicorn . ."
+    "sickos . list . ."
+    ". . list . ."
+    ". . button . .";
 }
 
 .dev-ul {
@@ -39,7 +52,6 @@
     border-radius: 42px;
     border-style: solid;
     border-color: palevioletred;
-    display: flex;
     align-content: center;
     align-items: center;
     justify-content: space-around;
@@ -57,15 +69,12 @@ div {
   font-family: 'Teko', sans-serif;
 }
 
-.wow {
-  position: absolute;
-  left: 75%;
-  top: 28%;
-}
+
 
 .sickos {
-  position:absolute;
-  left:5%;
+  
+  display: grid;
+  grid-area: sickos;
 }
 
 
@@ -83,14 +92,11 @@ div {
 }
 
 .myButton {
-  position: absolute;
-  width: 10%;
-  left: 68%;
-  top: 50%;
+  display: grid;
+  grid-area: button;
   object-fit: contain;
   justify-content: center;
   justify-items: center;
-  width: 15%;
 	background-color:#71dfe3;
 	border-radius:42px;
 	display:inline-block;
@@ -115,6 +121,8 @@ input {
 .title {
     font-family: 'Teko', sans-serif;
     font-size: 4em;
+    display: grid;
+  grid-area: header;
 }
 
 body {

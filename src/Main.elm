@@ -4,9 +4,13 @@ import Browser
 import Css exposing (..)
 import Date exposing (Date, Interval(..), Unit(..), today)
 import Html exposing (..)
-import Html.Attributes exposing (class, name, src, style)
+import Html.Attributes exposing (class, id, name, src, style, type_)
 import Html.Events exposing (onClick, onInput)
+import Json.Decode as JD
+import Json.Encode as JE
+import List.Extra
 import ListView exposing (..)
+import Svg.Styled.Attributes exposing (x)
 import Task exposing (..)
 import Time exposing (Month(..), utc)
 
@@ -32,6 +36,8 @@ type alias Model =
     , newDev : String
     , collapsible : Bool
     , sickDevelopers : List Developer
+    , json : String
+    , jsonJS : String
     }
 
 
@@ -47,13 +53,15 @@ init : ( Model, Cmd Msg )
 init =
     ( { tableState = ListView.makeState
       , dateJs = Date.fromPosix utc (Time.millisToPosix 0)
-      , developers = [ Developer "Bartek" (formatDate 1666952162000) None, Developer "Lybron" (formatDate 1667470562000) None, Developer "River" (formatDate 1667384162000) None, Developer "Mika" (formatDate 1667297762000) None ]
+      , developers = []
       , dateJsString = ""
       , newDev = ""
       , collapsible = True
       , sickDevelopers = []
+      , json = ""
+      , jsonJS = ""
       }
-    , sendData "Hello Js"
+    , sendData "Date pls"
     )
 
 
@@ -76,10 +84,10 @@ update msg model =
             ( model, sendData "Hello Js" )
 
         ReceivedDataFromJS data ->
-            ( { model | dateJs = format (String.slice 0 10 data), dateJsString = data }, Cmd.none )
+            ( { model | dateJs = format (String.slice 0 10 data), dateJsString = String.slice 0 10 data, jsonJS = String.dropLeft 39 data |> String.dropRight 3, developers = oldDevs data False, sickDevelopers = oldDevs data True }, Cmd.none )
 
         ModifyList ->
-            ( { model | developers = newHead model }, Cmd.none )
+            ( { model | developers = newHead model, json = createJson (newHead model) model.sickDevelopers }, sendData (createJson (newHead model) model.sickDevelopers) )
 
         Input text ->
             ( { model | newDev = text }, Cmd.none )
@@ -90,7 +98,7 @@ update msg model =
                     Developer model.newDev defaultDate None
             in
             if String.length model.newDev > 1 then
-                ( { model | collapsible = True, developers = dev :: model.developers }, Cmd.none )
+                ( { model | collapsible = True, developers = dev :: model.developers, json = createJson (dev :: model.developers) model.sickDevelopers }, sendData (createJson (dev :: model.developers) model.sickDevelopers) )
 
             else
                 ( { model | collapsible = True }, Cmd.none )
@@ -103,19 +111,98 @@ update msg model =
 
         SickStatus status name ->
             if status == True then
-                ( { model | developers = markAsSick name model.developers status, sickDevelopers = pushToSick model.developers model.sickDevelopers name status }, Cmd.none )
+                ( { model | developers = markAsSick name model.developers status, sickDevelopers = pushToSick model name status, json = createJson (markAsSick name model.developers status) (pushToSick model name status) }, sendData (createJson (markAsSick name model.developers status) (pushToSick model name status)) )
 
             else
-                ( { model | developers = backToHealth name model.developers model.sickDevelopers, sickDevelopers = removeHealthy model.sickDevelopers name }, Cmd.none )
+                ( { model | developers = backToHealth name model, sickDevelopers = removeHealthy model.sickDevelopers name, json = createJson (backToHealth name model) (removeHealthy model.sickDevelopers name) }, sendData (createJson (backToHealth name model) (removeHealthy model.sickDevelopers name)) )
 
         AssignUnicorn name ->
-            ( { model | developers = assignUnicorn model name }, Cmd.none )
+            ( { model | developers = assignUnicorn model name, json = createJson (assignUnicorn model name) model.sickDevelopers }, sendData (createJson (assignUnicorn model name) model.sickDevelopers) )
 
 
 port receiveData : (String -> msg) -> Sub msg
 
 
 port sendData : String -> Cmd msg
+
+
+oldDevs : String -> Bool -> List Developer
+oldDevs data isSick =
+    let
+        dropStuff x =
+            String.dropLeft 36 x |> String.dropRight 2 |> splitOne |> checkIfSick
+
+        checkIfSick x =
+            if isSick == False then
+                List.map removeSicks x
+
+            else
+                List.map keepSicks x
+
+        removeSicks x =
+            if String.contains "Sick" x then
+                ""
+
+            else
+                x
+
+        keepSicks x =
+            if String.contains "Sick" x then
+                x
+
+            else
+                ""
+
+        splitOne =
+            String.split "&"
+
+        splitTwo x =
+            List.map (String.split ";") x
+
+        transformToDev x =
+            Developer (Maybe.withDefault "name" (List.Extra.getAt 0 x)) (Result.withDefault (formatDate 1666952162000) (Date.fromIsoString (Maybe.withDefault "2022-01-01" (List.Extra.getAt 1 x)))) (getStatus (Maybe.withDefault "None" (List.Extra.getAt 2 x)))
+
+        getStatus x =
+            case x of
+                "Unicorn" ->
+                    Unicorn
+
+                "None" ->
+                    None
+
+                _ ->
+                    Sick
+    in
+    dropStuff data |> splitTwo |> List.map transformToDev
+
+
+createJson : List Developer -> List Developer -> String
+createJson devs sickos =
+    let
+        statusString x =
+            case x of
+                Unicorn ->
+                    "Unicorn"
+
+                Sick ->
+                    "Sick"
+
+                _ ->
+                    "None"
+
+        dateToString x =
+            Date.toIsoString x
+
+        devToString x =
+            x.name ++ ";" ++ dateToString x.date ++ ";" ++ statusString x.status
+
+        stringList =
+            List.map devToString connectLists
+
+        connectLists =
+            List.append devs sickos
+    in
+    String.join "&" stringList
 
 
 subscriptions : Model -> Sub Msg
@@ -125,42 +212,39 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "griddy" ]
         [ h1 [ class "title" ] [ text "Click on the Unicorn to assign a new one" ]
         , Html.div
             [ class "container" ]
             [ button [ onClick ModifyList, style "border-style" "none", style "padding" "0" ] [ img [ src "src/unicorn-bg.png", style "width" "200px", style "height" "200px", style "background-color" "pink", style "padding" "0" ] [] ]
             ]
-        , div [ class "container-bottom" ]
-            [ if List.length model.sickDevelopers > 0 then
-                section [ class "sickos" ]
-                    [ h3 [] [ text "Sick unicorns :(" ]
-                    , div [ class "sickos" ] (renderSicks model.sickDevelopers)
-                    ]
+        , if List.length model.sickDevelopers > 0 then
+            section [ class "sickos" ]
+                [ h3 [] [ text "Sick unicorns :(" ]
+                , div [] (renderSicks model.sickDevelopers)
+                ]
+
+          else
+            text ""
+        , div [ class "devs-list" ] (renderProducts (List.sortBy (\x -> Date.toIsoString x.date) model.developers))
+        , button
+            [ class "myButton"
+            , if model.collapsible == True then
+                onClick OpenButton
 
               else
-                text ""
-            , div [ class "devs-list" ] (renderProducts (List.sortBy (\x -> Date.toIsoString x.date) model.developers))
-            , img [ src "src/collapsible.png", class "wow" ] []
-            , button
-                [ class "myButton"
-                , if model.collapsible == True then
-                    onClick OpenButton
+                onClick Nope
+            ]
+            [ text "Add Unicorn"
+            , if model.collapsible == True then
+                div [] []
 
-                  else
-                    onClick Nope
-                ]
-                [ text "Add Unicorn"
-                , if model.collapsible == True then
-                    div [] []
-
-                  else
-                    div
-                        []
-                        [ input [ class "container", onInput Input ] []
-                        , button [ onClick UpdateDevs ] [ text "Submit" ]
-                        ]
-                ]
+              else
+                div
+                    []
+                    [ input [ class "container", onInput Input ] []
+                    , button [ onClick UpdateDevs ] [ text "Submit" ]
+                    ]
             ]
         ]
 
@@ -176,7 +260,7 @@ renderProduct product =
                 "dev-ul"
     in
     if product.status /= Sick then
-        ul [ class unicornRender, style "width" "30%" ]
+        ul [ class unicornRender ]
             [ div []
                 [ li [ class "dev-li" ]
                     [ text product.name ]
@@ -255,7 +339,7 @@ renderSick dev =
         kid =
             if dev.status == Sick then
                 [ li [ style "list-style" "none" ] [ text dev.name ]
-                , button [ onClick (SickStatus False dev.name), style "margin-left" "5px" ] [ img [ src "src/healthy.png", style "width" "20px" ] [] ]
+                , button [ onClick (SickStatus False dev.name) ] [ img [ src "src/healthy.png", style "width" "20px" ] [] ]
                 ]
 
             else
@@ -264,9 +348,15 @@ renderSick dev =
     ul [ style "display" "flex" ] kid
 
 
-pushToSick : List Developer -> List Developer -> String -> Bool -> List Developer
-pushToSick devs sicks name status =
+pushToSick : Model -> String -> Bool -> List Developer
+pushToSick model name status =
     let
+        devs =
+            model.developers
+
+        sicks =
+            model.sickDevelopers
+
         isSick dev =
             dev.name == name
     in
@@ -303,8 +393,8 @@ removeHealthy sicks name =
     List.filter isName sicks
 
 
-backToHealth : String -> List Developer -> List Developer -> List Developer
-backToHealth name devs sicks =
+backToHealth : String -> Model -> List Developer
+backToHealth name model =
     let
         check x =
             if x.name == name then
@@ -315,6 +405,12 @@ backToHealth name devs sicks =
 
         isName x =
             x.name == name
+
+        sicks =
+            model.sickDevelopers
+
+        devs =
+            model.developers
 
         healthyGuy =
             List.filter isName sicks

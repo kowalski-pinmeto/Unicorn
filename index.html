@@ -8,6 +8,10 @@
   </head>
   <body>
     <div id="main"></div>
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-1.7.1.min.js"
+    ></script>
 
     <script src="elm.js"></script>
     <script>
@@ -16,9 +20,36 @@
       });
       var d = new Date();
       var x = d.toISOString();
-      app.ports.sendData.subscribe(function (data) {
-        console.log("Data from Elm: ", data);
-        app.ports.receiveData.send("" + x);
+      app.ports.sendData.subscribe(function (elmdata) {
+        console.log("Data from Elm: ", elmdata);
+        if (elmdata == "Date pls") {
+          const dupa = $.getJSON("devs.json", (responseText, status) => {
+            if (dupa.status === 200) {
+              const responseText1 = responseText;
+              console.log("Success");
+              console.log(responseText1);
+            } else {
+              console.log("Fail");
+            }
+
+            console.log(dupa.responseText);
+            app.ports.receiveData.send("" + x + dupa.responseText);
+          });
+        } else {
+          console.log(elmdata);
+          $.ajax({
+            url: "/savejson.php?action=save",
+            method: "POST",
+            data: {
+              elem: {
+                elmdata,
+              },
+            },
+            success: function (data) {
+              console.log("Saved!");
+            },
+          });
+        }
       });
     </script>
   </body>
